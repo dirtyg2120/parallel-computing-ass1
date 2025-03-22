@@ -33,8 +33,13 @@ Assignment description: [Assignment1_v3_18022025.pdf](https://lms.hcmut.edu.vn/p
 ## Running MPI Processes
 
 1. **Install MPI**: First, you need to install MPI3 related libraries on your system.
+
+   ```bash
+   sudo apt update
+   sudo apt install openmpi-bin openmpi-common libopenmpi-dev
+   ```
    
-2. **Setup Hostfile**: To run MPI across multiple nodes, create a file named `hostfile` in your working directory with the following content:
+3. **Setup Hostfile**: To run MPI across multiple nodes, create a file named `hostfile` in your working directory with the following content:
 
    ```bash
    localhost slots=2
@@ -45,7 +50,7 @@ Assignment description: [Assignment1_v3_18022025.pdf](https://lms.hcmut.edu.vn/p
    - The `128.199.107.103 slots=2` line is **optional**. Remove it to run on the local machine only. 
    - The `slots` indicate the number of processors you want to allocate for your MPI job.
 
-3. **Running the Script**: To compile and run the MPI program, follow these steps:
+4. **Running the Script**: To compile and run the MPI program, follow these steps:
 
    ### Compile the C++ Script
 
