@@ -42,7 +42,7 @@ Assignment description: [Assignment1_v3_18022025.pdf](https://lms.hcmut.edu.vn/p
    ```
 
    - The `localhost slots=2` means you’re requesting two processors on your local machine.
-   - The `root@128.199.107.103 slots=2` line is **optional**. Remove it to run on the local machine only. 
+   - The `128.199.107.103 slots=2` line is **optional**. Remove it to run on the local machine only. 
    - The `slots` indicate the number of processors you want to allocate for your MPI job.
 
 3. **Running the Script**: To compile and run the MPI program, follow these steps:
