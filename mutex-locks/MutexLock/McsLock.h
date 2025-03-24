@@ -28,12 +28,14 @@ class McsLock
                     backoff.backoff();
                 }
             }
+            backoff.reset();
         }
 
         void release(Node* myNode) {
             if (myNode->next.load(std::memory_order_acquire) == nullptr) {
                 Node* expected = myNode;
                 if (tail.compare_exchange_strong(expected, nullptr, std::memory_order_release, std::memory_order_relaxed)) {
+                    backoff.reset();
                     return;
                 }
 

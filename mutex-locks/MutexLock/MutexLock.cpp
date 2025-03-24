@@ -54,6 +54,11 @@ std::atomic<int> totalWorkDone{ 0 };
 std::atomic<int> criticalWorkDone{ 0 };
 std::atomic<int> outsideWorkDone{ 0 };
 
+TasLock* taslock = nullptr;
+TtasLock* ttaslock = nullptr;
+McsLock* mcslock = nullptr;
+std::mutex mtx;
+
 JsonExporter toJson(int numThreads, LockType lockType, int numOfIters, int targetWork, int outsideWork, int n, int totalWorkDone, int criticalWorkDone, int outsideWorkDone, int maxBackoffDelay, double duration) {
     JsonExporter data;
     data.add("numberOfThreads", numThreads);
@@ -83,27 +88,21 @@ int is_prime(int p) {
 
 void correctness_thread_entry(LockType lockType, int numOfIters, int outsideWork, int maxBackoffDelay) {
     McsLock::Node mcsNode;
-
-    TasLock taslock(10, maxBackoffDelay);
-    TtasLock ttaslock(10, maxBackoffDelay);
-    McsLock mcslock(10, maxBackoffDelay);
-    std::mutex mtx;
-
     if (lockType != MUTEX) {
         for (auto i = 0; i < numOfIters; i++) {
             switch (lockType)
             {
-            case TAS:
-                taslock.acquire();
-                break;
-            case TTAS:
-                ttaslock.acquire();
-                break;
-            case MCS:
-                mcslock.acquire(&mcsNode);
-                break;
-            default:
-                break;
+                case TAS:
+                    taslock->acquire();
+                    break;
+                case TTAS:
+                    ttaslock->acquire();
+                    break;
+                case MCS:
+                    mcslock->acquire(&mcsNode);
+                    break;
+                default:
+                    break;
             };
 
             // Critical section
@@ -113,17 +112,17 @@ void correctness_thread_entry(LockType lockType, int numOfIters, int outsideWork
 
             switch (lockType)
             {
-            case TAS:
-                taslock.release();
-                break;
-            case TTAS:
-                ttaslock.release();
-                break;
-            case MCS:
-                mcslock.release(&mcsNode);
-                break;
-            default:
-                break;
+                case TAS:
+                    taslock->release();
+                    break;
+                case TTAS:
+                    ttaslock->release();
+                    break;
+                case MCS:
+                    mcslock->release(&mcsNode);
+                    break;
+                default:
+                    break;
             };
 
             // Outside work
@@ -154,27 +153,21 @@ void correctness_thread_entry(LockType lockType, int numOfIters, int outsideWork
 
 void performance_thread_entry(LockType lockType, int targetWork, int outsideWork, int maxBackoffDelay) {
     McsLock::Node mcsNode;
-
-    TasLock taslock;
-    TtasLock ttaslock;
-    McsLock mcslock;
-    std::mutex mtx;
-
     if (lockType != MUTEX) {
         while (totalWorkDone < targetWork) {
             switch (lockType)
             {
-            case TAS:
-                taslock.acquire();
-                break;
-            case TTAS:
-                ttaslock.acquire();
-                break;
-            case MCS:
-                mcslock.acquire(&mcsNode);
-                break;
-            default:
-                break;
+                case TAS:
+                    taslock->acquire();
+                    break;
+                case TTAS:
+                    ttaslock->acquire();
+                    break;
+                case MCS:
+                    mcslock->acquire(&mcsNode);
+                    break;
+                default:
+                    break;
             };
 
             // Critical section
@@ -184,17 +177,17 @@ void performance_thread_entry(LockType lockType, int targetWork, int outsideWork
 
             switch (lockType)
             {
-            case TAS:
-                taslock.release();
-                break;
-            case TTAS:
-                ttaslock.release();
-                break;
-            case MCS:
-                mcslock.release(&mcsNode);
-                break;
-            default:
-                break;
+                case TAS:
+                    taslock->release();
+                    break;
+                case TTAS:
+                    ttaslock->release();
+                    break;
+                case MCS:
+                    mcslock->release(&mcsNode);
+                    break;
+                default:
+                    break;
             };
 
             // Outside work
@@ -241,6 +234,10 @@ void run_test(TestType testType, LockType lockType, int numThreads, int numOfIte
     if (lockType == MUTEX || lockType == OMP) {
         maxBackoffDelay = 0;
     }
+
+    taslock = new TasLock(10, maxBackoffDelay);
+    ttaslock = new TtasLock(10, maxBackoffDelay);
+    mcslock = new McsLock(10, maxBackoffDelay);
 
     auto start = high_resolution_clock::now();
 
@@ -343,6 +340,10 @@ void run_test(TestType testType, LockType lockType, int numThreads, int numOfIte
     else {
         std::cout << std::endl;
     }
+
+    delete taslock;
+    delete ttaslock;
+    delete mcslock;
 }
 
 int main() {
