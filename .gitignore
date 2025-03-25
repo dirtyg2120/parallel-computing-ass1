@@ -33,3 +33,5 @@
 
 #miscellaneous
 *.vs
+mutex-locks/MutexLock/x64/Debug
+mutex-locks/x64/Debug
