@@ -53,9 +53,9 @@ void run_test(int times, int num_threads) {
     std::string pass_fail = result ? "Pass" : "Fail";
 
     // In ra kết quả kiểm thử cùng giá trị bộ đếm
-    std::cout << times << "\t" << num_threads << "\t"
-              << counter.load() << "\t"
-              << duration.count()*1000 << "\t" 
+    std::cout << times << "\t" << "\t" << num_threads << "\t" << "\t"
+              << counter.load() << "\t" << "\t"
+              << duration.count()*1000 << "\t" << "\t" 
               << pass_fail << std::endl;
 }
 
@@ -64,7 +64,7 @@ int main() {
     std::cout << "Times\tThreads\tCounter\tExec_Time (ms)\tPass/Fail" << std::endl;
 
     // Kiểm thử với các số lần từ 1 đến 3 và số luồng từ 1, 2, 4, 8
-    for (int times : {1, 64, 128}) {
+    for (int times : {1, 100000, 10000000}) {
         for (int num_threads : {1, 2, 4, 8}) {
             run_test(times, num_threads);
         }

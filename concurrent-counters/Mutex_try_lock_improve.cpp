@@ -2,63 +2,81 @@
 #include <mutex>
 #include <thread>
 #include <vector>
-#include <chrono>  // Thêm thư viện để đo thời gian
+#include <chrono>
+#include <atomic>
 
-int counter_mutex = 0;
-std::mutex mtx;
-
-void increment_mutex(int times) {
-    for (int i = 0; i < times; ++i) {
-        std::lock_guard<std::mutex> lock(mtx);
-        ++counter_mutex;  // Chỉ một luồng có thể truy cập bộ đếm mỗi lần
+// =============== Phần triển khai backoff cho mutex ===============
+void lock_with_backoff(std::mutex& mtx) {
+    int backoff = 1;                 
+    const int MAX_BACKOFF = 1 << 15; 
+    
+    while (!mtx.try_lock()) {
+        std::this_thread::sleep_for(std::chrono::nanoseconds(backoff));
+        if (backoff < MAX_BACKOFF) {
+            backoff <<= 1;  // nhân đôi
+        }
     }
 }
 
+int counter_mutex_backoff = 0;
+std::mutex mtx_backoff;
+
+void increment_mutex_backoff(int times) {
+    for (int i = 0; i < times; ++i) {
+        lock_with_backoff(mtx_backoff);
+        ++counter_mutex_backoff;  // vùng tới hạn
+        mtx_backoff.unlock();
+    }
+}
+
+// =============== Phần kiểm thử ===============
 bool test_correctness(int num_threads, int times) {
-    // Khởi tạo lại bộ đếm
-    counter_mutex = 0;
-    
+    // Đặt lại bộ đếm về 0
+    counter_mutex_backoff = 0;
+
     // Tạo các luồng
     std::vector<std::thread> threads;
+    threads.reserve(num_threads);
     for (int i = 0; i < num_threads; ++i) {
-        threads.push_back(std::thread(increment_mutex, times));
+        threads.emplace_back(increment_mutex_backoff, times);
     }
 
-    // Đợi tất cả các luồng hoàn thành
-    for (auto& t : threads) {
+    // Chờ tất cả luồng kết thúc
+    for (auto &t : threads) {
         t.join();
     }
 
-    // Kiểm tra tính đúng đắn
-    return counter_mutex == num_threads * times;
+    // Kiểm tra kết quả cuối cùng
+    return (counter_mutex_backoff == num_threads * times);
 }
 
 void run_test(int times, int num_threads) {
-    // Đo thời gian thực thi
+    // Đo thời gian bắt đầu
     auto start = std::chrono::high_resolution_clock::now();
 
     bool result = test_correctness(num_threads, times);
-    
+
+    // Đo thời gian kết thúc
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
 
+    // Pass/Fail
     std::string pass_fail = result ? "Pass" : "Fail";
 
-    // In ra kết quả kiểm thử cùng giá trị bộ đếm
-    std::cout << times << "\t" << num_threads << "\t"
-              << counter_mutex << "\t"
-              << duration.count()*1000 << "\t" 
+    // In ra kết quả
+    std::cout << times << "\t" << "\t"
+              << num_threads << "\t" << "\t"
+              << counter_mutex_backoff << "\t" << "\t"
+              << duration.count()*1000 << "\t" << "\t"
               << pass_fail << std::endl;
 }
 
 int main() {
-    // In tiêu đề bảng
-    std::cout << "Times\tThreads\tCounter\tExec_Time (ms)\tPass/Fail" << std::endl;
+    // Tiêu đề bảng
+    std::cout << "Times \t \t Threads \t \t Counter \t \t Exec_Time (ms)\t \t Pass/Fail" << std::endl;
 
-    // Kiểm thử với các số lần từ 1 đến 3 và số luồng từ 1, 2, 4, 8
-    // for (int times = 1; times <= 3; ++times) {
-    for (int times : {1, 64, 128}) {
-        
+    // Kiểm thử với times từ 1 đến 3, và threads = 1, 2, 4, 8
+    for (int times : {1, 100000, 10000000}) {
         for (int num_threads : {1, 2, 4, 8}) {
             run_test(times, num_threads);
         }
