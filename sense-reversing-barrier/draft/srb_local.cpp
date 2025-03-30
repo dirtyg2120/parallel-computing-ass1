@@ -11,25 +11,21 @@ private:
     std::atomic<int> count;
     std::atomic<bool> sense;
     int initial_count;
-    thread_local static bool local_sense;  // Sense of each thread
+    thread_local static bool local_sense;
 
 public:
     SenseReversingBarrier(int n_threads)
         : count(n_threads), initial_count(n_threads), sense(true) {}
 
     void wait() {
-        // Update sense
         local_sense = !local_sense;
         int arrived = count.fetch_sub(1, std::memory_order_acq_rel);
 
         if (arrived == 1) {
-            // last arrived then reset
             count.store(initial_count, std::memory_order_relaxed);
             sense.store(local_sense, std::memory_order_release);
         } else {
-            // Wait until global sense matches thread's own sense
             while (sense.load(std::memory_order_acquire) != local_sense) {
-                // Reduce CPU load (ChatGPT's suggestion)
                 std::this_thread::yield();
             }
         }
