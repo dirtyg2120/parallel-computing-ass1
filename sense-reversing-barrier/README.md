@@ -3,7 +3,8 @@
 ## Update hostfile
 ```
 localhost slots=2
-128.199.71.102 slots=2
+root@128.199.71.102 slots=2
+root@159.223.51.143 slots=2
 ```
 
 `128.199.71.102 slots=2` is OPTIONAL. Remove this line to run on local (shared memory) only.
@@ -12,31 +13,25 @@ localhost slots=2
 
 OpenMP Version:
 ```bash
-g++ -fopenmp -o srb_openmp srb_openmp.cpp
+g++ -o srb_openmp srb_openmp.cpp -fopenmp
 ./srb_openmp
 ```
 
 Pthreads Version:
 ```bash
-g++ -pthread -o srb_pthreads srb_pthreads.cpp
+g++ -o srb_pthreads srb_pthreads.cpp -pthread 
 ./srb_pthreads
 ```
 
 Normal C++ Version:
 ```bash
-g++ -std=c++11 -o srb srb.cpp
+g++ -o srb srb.cpp -pthread
 ./srb
-```
-
-C++ with Exponential Backoff Version:
-```bash
-g++ -std=c++11 -o srb_expo_backoff srb_expo_backoff.cpp
-./srb_expo_backoff
 ```
 
 MPI version:
 ```bash
 mpic++ -o srb_mpi srb_mpi.cpp
-mpirun -np 2 --hostfile hostfile --allow-run-as-root ./srb_mpi
+mpirun -np 6 --hostfile hostfile --allow-run-as-root ./srb_mpi
 ```
 
