@@ -57,22 +57,20 @@ void worker(SenseReversingBarrier& barrier, int id, const std::vector<int>& arr,
 }
 
 int main() {
-    constexpr int n_threads = 10;
+    constexpr int n_threads = 4;
     std::vector<int> arr = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     int n = arr.size();
     int chunk_size = n / n_threads;
     std::vector<std::thread> threads;
     std::vector<std::atomic<int>> local_sums(n_threads);
     SenseReversingBarrier barrier(n_threads);
-
-    // Iterate through each threads to sum each part of the array
+    
     for (int i = 0; i < n_threads; ++i) {
         int start = i * chunk_size;
         int end = (i == n_threads - 1) ? n : (i + 1) * chunk_size;
         threads.emplace_back(worker, std::ref(barrier), i, std::ref(arr), start, end, std::ref(local_sums[i]));
     }
 
-    // Wait for all threads done
     for (auto& t : threads) {
         t.join();
     }

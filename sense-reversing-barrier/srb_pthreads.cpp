@@ -23,7 +23,7 @@ void pthread_barrier_init(int n_threads) {
 }
 
 int main() {
-    constexpr int n_threads = 4;  // Set thread count
+    constexpr int n_threads = 4;
     pthread_barrier_init(n_threads);
 
     std::vector<pthread_t> threads(n_threads);

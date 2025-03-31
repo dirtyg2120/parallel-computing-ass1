@@ -12,20 +12,20 @@ localhost slots=2
 
 OpenMP Version:
 ```bash
-g++ -fopenmp -o openmp_barrier openmp_barrier.cpp
-./openmp_barrier
+g++ -fopenmp -o srb_openmp srb_openmp.cpp
+./srb_openmp
 ```
 
 Pthreads Version:
 ```bash
-g++ -pthread -o pthread_barrier pthread_barrier.cpp
-./pthread_barrier
+g++ -pthread -o srb_pthreads srb_pthreads.cpp
+./srb_pthreads
 ```
 
 Normal C++ Version:
 ```bash
-g++ -std=c++11 -o normal_barrier normal_barrier.cpp
-./normal_barrier
+g++ -std=c++11 -o srb srb.cpp
+./srb
 ```
 
 C++ with Exponential Backoff Version:
@@ -37,6 +37,6 @@ g++ -std=c++11 -o srb_expo_backoff srb_expo_backoff.cpp
 MPI version:
 ```bash
 mpic++ -o srb_mpi srb_mpi.cpp
-mpirun -np 2 --hostfile hostfile ./srb_mpi
+mpirun -np 2 --hostfile hostfile --allow-run-as-root ./srb_mpi
 ```
 

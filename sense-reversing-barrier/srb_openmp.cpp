@@ -14,9 +14,8 @@ void openmp_worker(int id, int n_threads) {
 }
 
 int main() {
-    constexpr int n_threads = 4;  // Set thread count
+    constexpr int n_threads = 4;
 
-    // Measure OpenMP Barrier
     std::cout << "Testing OpenMP Barrier:\n";
     #pragma omp parallel num_threads(n_threads)
     openmp_worker(omp_get_thread_num(), n_threads);

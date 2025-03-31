@@ -101,7 +101,7 @@ void measure_performance(Barrier& barrier, int n_threads, int n_iterations) {
 
 // ----- Main -----
 int main() {
-    constexpr int n_threads = 4;  // Set thread count
+    constexpr int n_threads = 4;
     constexpr int n_iterations = 10;  // Set number of barrier episodes
 
     // Measure Sense Reversing Barrier with Exponential Backoff
