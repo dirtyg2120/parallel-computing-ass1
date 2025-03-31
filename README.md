@@ -66,3 +66,9 @@ Assignment description: [Assignment1_v3_18022025.pdf](https://lms.hcmut.edu.vn/p
 
    - `-np 4` specifies that 4 processes should be used.
    - You can adjust the number of processes (`4` in this example) based on your system and requirements.
+   
+## For MutexLock Execution
+   1. Simply, build and run the MutexLock.sln with Visual Studio. It will start testing and logging for serveral configuration for each locks
+   2. After finish, it will provide 2 files as output: performance-results.json and correctness-results.json
+   3. The process may take a long time. So, I've prepare a sample in folder parallel-computing-ass1\mutex-locks\output-samples
+   4. You can use the output files together with .ipynb file in parallel-computing-ass1\mutex-locks\visualization-ipynb to visualize the result
